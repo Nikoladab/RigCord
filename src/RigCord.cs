@@ -27,7 +27,7 @@ using Microsoft.Win32;
 static class Program
 {
     public const string Name = "RigCord";
-    public const string Version = "3.3";
+    public const string Version = "3.4";
     // Project page. Used for the clickable profile picture, the "Get RigCord" button and the footer link.
     public const string GitHubUrl = "https://github.com/Nikoladab/RigCord";
     public const string LatestReleaseApi = "https://api.github.com/repos/Nikoladab/RigCord/releases/latest";
@@ -1675,7 +1675,9 @@ class MainForm : Form
     RingGauge gCpu, gGpu, gRam, gVram;
     Toggle tgGame, tgNames, tgVram, tgTemp, tgElapsed, tgStartup, tgPause;
     InputBox idBox;
-    LinkLabel advLink;
+    LinkLabel advLink, setupSteps, portalLink;
+    CardPanel discordCard;
+    float uiK = 1f;
     CardPanel disp;
     Label appNameLabel, hint;
     LinkLabel updateLink;
@@ -1802,6 +1804,27 @@ class MainForm : Form
         portal.LinkClicked += delegate { Open("https://discord.com/developers/applications"); };
         dc.Controls.Add(portal);
 
+        // first-run guide, shown only while no Application ID is saved (the card grows to fit it)
+        const string s1 = "1.  Open the ", s1Link = "Developer Portal", s1End = " → New Application\n";
+        setupSteps = new LinkLabel();
+        setupSteps.Text = s1 + s1Link + s1End +
+            "2.  Copy its Application ID, paste it above, press Save\n" +
+            "3.  In Discord: Activity Privacy → Share your activities";
+        setupSteps.LinkArea = new LinkArea(s1.Length, s1Link.Length);
+        setupSteps.UseMnemonic = false;
+        setupSteps.AutoSize = true;
+        setupSteps.Font = new Font("Segoe UI", 8.5f);
+        setupSteps.ForeColor = Theme.Text;
+        setupSteps.BackColor = Theme.Card;
+        setupSteps.LinkColor = Theme.Link;
+        setupSteps.ActiveLinkColor = Theme.Text;
+        setupSteps.LinkBehavior = LinkBehavior.HoverUnderline;
+        setupSteps.Location = new Point(14, 58);
+        portalLink = portal;
+        setupSteps.LinkClicked += delegate { Open("https://discord.com/developers/applications"); };
+        dc.Controls.Add(setupSteps);
+        discordCard = dc;
+
         tgGame.CheckedChanged += delegate { settings.ShowGame = tgGame.Checked; app.SettingsChanged(); };
         tgNames.CheckedChanged += delegate { settings.ShowNames = tgNames.Checked; app.SettingsChanged(); };
         tgVram.CheckedChanged += delegate { settings.ShowVram = tgVram.Checked; app.SettingsChanged(); };
@@ -1817,6 +1840,7 @@ class MainForm : Form
             ScaleTree(this, k);
             ClientSize = new Size((int)Math.Round(W * k), (int)Math.Round(H * k));
         }
+        uiK = k;
         ResumeLayout(false);
 
         refresh = new System.Windows.Forms.Timer();
@@ -1935,8 +1959,14 @@ class MainForm : Form
         advLink.LinkColor = custom ? Theme.Yellow : Theme.Link;
         advLink.Left = disp.Right - advLink.Width;
 
-        appNameLabel.Text = settings.ClientId.Length == 0
-            ? "Paste your Application ID and press Save"
+        bool setup = settings.ClientId.Length == 0;
+        setupSteps.Visible = setup;
+        appNameLabel.Visible = !setup;
+        portalLink.Visible = !setup;
+        int cardH = (int)Math.Round((setup ? 124 : 84) * uiK);
+        if (discordCard.Height != cardH) discordCard.Height = cardH;
+        appNameLabel.Text = setup
+            ? ""
             : "Shows as \"Playing " + (settings.AppName.Length > 0 ? settings.AppName : "...") + "\"";
     }
 
