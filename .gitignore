@@ -1,0 +1,6 @@
+# build output (attached to GitHub Releases instead)
+*.exe
+share/
+
+# personal settings
+settings.ini
