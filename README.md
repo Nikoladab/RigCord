@@ -1,66 +1,126 @@
-<p align="center"><img src="assets/logo.png" width="128" alt="RigCord logo"></p>
-
-<h1 align="center">RigCord</h1>
-<p align="center">Your rig, live on Discord.</p>
-
 <p align="center">
-  <a href="https://github.com/Nikoladab/RigCord/releases/latest/download/RigCord.exe"><b>⬇ Download RigCord.exe</b></a>
-  &nbsp;•&nbsp;
-  <a href="https://github.com/Nikoladab/RigCord/releases/latest">All releases</a>
+  <img src="assets/logo.png" width="120" alt="RigCord logo">
 </p>
 
-## How to download
-You don't need to know anything about GitHub, and **don't** use the green **Code** button (that's the source code, not the app).
+<h1 align="center">RigCord</h1>
 
-1. Click **[⬇ Download RigCord.exe](https://github.com/Nikoladab/RigCord/releases/latest/download/RigCord.exe)**. It always gets the newest version.
-2. If your browser asks, choose **Keep** to save the file.
-3. Double-click `RigCord.exe`. Nothing gets installed.
-4. If Windows shows **"Windows protected your PC"**, click **More info → Run anyway**. Windows shows this for every app that isn't signed with a paid certificate.
-5. Follow the [Setup](#setup) steps below. It takes about 1 minute.
+<p align="center">
+  <b>Your rig, live on Discord.</b><br>
+  Live CPU, GPU and RAM usage and the game you're playing, right on your Discord profile.
+</p>
 
-> Tip: put `RigCord.exe` in its own folder (for example `Documents\RigCord`) before running it, and turn on **Start with Windows** in the app so you never have to open it again.
+<p align="center">
+  <a href="https://github.com/Nikoladab/RigCord/releases/latest"><img src="https://img.shields.io/github/v/release/Nikoladab/RigCord?style=flat-square&color=6366f1&label=version" alt="Latest version"></a>
+  <a href="https://github.com/Nikoladab/RigCord/releases"><img src="https://img.shields.io/github/downloads/Nikoladab/RigCord/total?style=flat-square&color=22d3ee" alt="Downloads"></a>
+  <img src="https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0ea5e9?style=flat-square" alt="Windows 10 | 11">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-a78bfa?style=flat-square" alt="MIT license"></a>
+</p>
 
-RigCord shows your live PC stats and the game you're playing on your Discord profile:
+<p align="center">
+  <a href="https://github.com/Nikoladab/RigCord/releases/latest/download/RigCord.exe">
+    <img src="https://img.shields.io/badge/Download%20for%20Windows-RigCord.exe-5865F2?style=for-the-badge&logo=windows&logoColor=white" alt="Download RigCord for Windows">
+  </a>
+</p>
+
+---
+
+## Overview
+
+RigCord sits quietly in your system tray and turns your Discord status into a live hardware monitor. Your friends see what you're playing and how hard your rig is working, updated every few seconds.
 
 ```
 Playing RigCord
-In Roblox
+In Cyberpunk 2077
 CPU 31% • GPU 94% 76°C • RAM 15.2/32 GB
 1:25:02
 ```
 
 ## Features
-- **Live stats**: CPU, GPU, RAM, and VRAM usage. GPU % is measured the same way Task Manager does it.
-- **Game detection**: shows the game you're playing, with a timer that starts when the game started.
-  - The game's official icon appears as a small badge on your picture, and hovering it shows the game name. Names and icons come from Discord's list of known games.
-- **Custom text**: write your own lines with placeholders like `{game}`, `{cpu}`, `{gpu}`, `{temp}`, `{ram}`, `{vram}`, `{cpuname}`, and `{gpuname}`.
-- **Update notifications**: RigCord checks GitHub Releases and tells you when a new version is out.
-- **GPU temperature** on NVIDIA cards, plus optional CPU / GPU names.
-- **Clickable profile picture** that links to this repo, plus an optional button of your own (shown in the app's preview).
-- **Settings window** with a live profile preview and usage rings.
-- **Light on resources**: about 6 MB RAM and about 0% CPU while it sits in the tray.
-- **One small .exe**: nothing to install, and portable mode lets you share a ready-made folder.
 
-## Setup
-1. Create an app at https://discord.com/developers/applications. Its name is what appears after "Playing".
-2. Run `RigCord.exe`, paste the **Application ID**, and press **Save**.
-3. In Discord, turn on Settings → Activity Privacy → **Share your detected activities**.
+| | |
+|---|---|
+| **Live hardware stats** | CPU, GPU, RAM and VRAM usage, measured the same way Task Manager does |
+| **Game detection** | Recognises thousands of games automatically, shows the official game icon and a play timer |
+| **GPU temperature** | Live temperature on NVIDIA graphics cards |
+| **Custom text** | Write your own status lines with placeholders like `{game}`, `{cpu}` or `{gpuname}` |
+| **Custom button** | Add a link to your YouTube, Twitch or anything else under your activity |
+| **Automatic update alerts** | Get notified as soon as a new version is released |
+| **Featherweight** | Around 6 MB of RAM and near-zero CPU while it runs |
+| **Portable** | A single small `.exe` with no installer and no dependencies |
 
-## Advanced
-- **✎ Advanced** (next to Display): write your own profile lines. They override the Display toggles.
-- **Advanced settings** (bottom link) lets you change:
-  - the update interval
-  - CPU / GPU name overrides
-  - one button of your own
-  - which apps should never count as a game
+## Getting started
 
-Everything is saved in `settings.ini`. If that file is next to the exe, RigCord runs in portable mode.
+### 1. Download
+Download **[RigCord.exe](https://github.com/Nikoladab/RigCord/releases/latest/download/RigCord.exe)** (latest version) and place it in a folder of your choice.
 
-## Build
-Run `build.bat`. It uses the C# compiler that ships with Windows (.NET Framework 4.x), so you don't need to install anything.
-`src/make-icon.ps1` regenerates `assets/logo.png` and the exe icon from `assets/logo-original.jpg`.
+> [!NOTE]
+> Windows may show *"Windows protected your PC"* the first time you run it. This is normal for independent apps without a paid code-signing certificate. Click **More info → Run anyway**.
 
-Requirements: Windows 10/11 and the Discord desktop app.
+### 2. Create your Discord application
+1. Open the [Discord Developer Portal](https://discord.com/developers/applications) and click **New Application**.
+2. Give it a name, which is what appears after **"Playing"** on your profile (for example `RigCord` or `My PC`).
+3. Copy the **Application ID** from the *General Information* page.
+
+### 3. Connect
+1. Run `RigCord.exe`, paste the Application ID and click **Save**.
+2. In Discord, go to **User Settings → Activity Privacy** and turn on **Share your detected activities with others**.
+
+That's it. Enable **Start with Windows** in RigCord and it will run automatically from now on.
+
+## Customisation
+
+| Where | What you can change |
+|---|---|
+| **Display** | Show or hide the game, CPU/GPU names, VRAM, GPU temperature and the timer |
+| **✎ Advanced** | Write your own status lines. These override the Display options. |
+| **Advanced settings** | Update interval, custom hardware names, your own profile button, and apps that should never count as a game |
+
+**Available placeholders:** `{game}` `{cpu}` `{gpu}` `{temp}` `{ram}` `{ram%}` `{vram}` `{cpuname}` `{gpuname}`
+
+All settings are stored in `settings.ini`. If that file sits next to `RigCord.exe`, RigCord runs in portable mode.
+
+## FAQ
+
+<details>
+<summary><b>I can't see the button on my profile.</b></summary>
+<br>
+Discord never shows activity buttons to the profile owner. Everyone else can see it. The preview in RigCord shows how it looks to them.
+</details>
+
+<details>
+<summary><b>My status doesn't appear on Discord.</b></summary>
+<br>
+Make sure you're using the Discord <b>desktop app</b>, not the browser version, that <i>Share your detected activities</i> is enabled, and that the Application ID is correct. The status pill in the top-right corner of RigCord shows whether it's connected.
+</details>
+
+<details>
+<summary><b>A program that isn't a game shows up as a game.</b></summary>
+<br>
+Open <b>Advanced settings → Game detection</b> and add it to the ignore list. While it's running, a one-click "ignore" button appears there.
+</details>
+
+<details>
+<summary><b>Is it safe?</b></summary>
+<br>
+Yes. RigCord is fully open source, so you can read every line in <code>src/RigCord.cs</code>. It only talks to your local Discord app and to public Discord/GitHub endpoints, and it never collects any data.
+</details>
+
+## Requirements
+
+- Windows 10 or 11
+- Discord desktop app
+
+## Building from source
+
+No SDK required. RigCord compiles with the C# compiler that ships with Windows (.NET Framework 4.x).
+
+```bat
+build.bat
+```
+
+`src/make-icon.ps1` regenerates the app icon and logo from `assets/logo-original.jpg`.
 
 ## License
-[MIT](LICENSE) © Nikoladab
+
+Released under the [MIT License](LICENSE).
+Made by **[Nikoladab](https://github.com/Nikoladab)**.
