@@ -3,6 +3,23 @@
 <h1 align="center">RigCord</h1>
 <p align="center">Your rig, live on Discord.</p>
 
+<p align="center">
+  <a href="https://github.com/Nikoladab/RigCord/releases/latest/download/RigCord.exe"><b>⬇ Download RigCord.exe</b></a>
+  &nbsp;•&nbsp;
+  <a href="https://github.com/Nikoladab/RigCord/releases/latest">All releases</a>
+</p>
+
+## How to download
+You don't need to know anything about GitHub, and **don't** use the green **Code** button (that's the source code, not the app).
+
+1. Click **[⬇ Download RigCord.exe](https://github.com/Nikoladab/RigCord/releases/latest/download/RigCord.exe)**. It always gets the newest version.
+2. If your browser asks, choose **Keep** to save the file.
+3. Double-click `RigCord.exe`. Nothing gets installed.
+4. If Windows shows **"Windows protected your PC"**, click **More info → Run anyway**. Windows shows this for every app that isn't signed with a paid certificate.
+5. Follow the [Setup](#setup) steps below. It takes about 1 minute.
+
+> Tip: put `RigCord.exe` in its own folder (for example `Documents\RigCord`) before running it, and turn on **Start with Windows** in the app so you never have to open it again.
+
 RigCord shows your live PC stats and the game you're playing on your Discord profile:
 
 ```
