@@ -27,7 +27,7 @@ using Microsoft.Win32;
 static class Program
 {
     public const string Name = "RigCord";
-    public const string Version = "3.4";
+    public const string Version = "3.5";
     // Project page. Used for the clickable profile picture, the "Get RigCord" button and the footer link.
     public const string GitHubUrl = "https://github.com/Nikoladab/RigCord";
     public const string LatestReleaseApi = "https://api.github.com/repos/Nikoladab/RigCord/releases/latest";
@@ -2712,7 +2712,7 @@ class TrayApp : ApplicationContext
             List<string> parts = new List<string>();
             if (image.Length > 0)
             {
-                string hover = link.Length > 0 ? "RigCord \u2022 get it here" : "RigCord";
+                string hover = link.Length > 0 ? "RigCord \u2022 Get It Here" : "RigCord";
                 parts.Add("\"large_image\":" + Json.Str(image));
                 parts.Add("\"large_text\":" + Json.Str(hover));
                 if (link.Length > 0) parts.Add("\"large_url\":" + Json.Str(link)); // clickable picture (newer Discord)
