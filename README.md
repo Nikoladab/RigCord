@@ -19,7 +19,7 @@ CPU 31% • GPU 94% 76°C • RAM 15.2/32 GB
 - **Custom text**: write your own lines with placeholders like `{game}`, `{cpu}`, `{gpu}`, `{temp}`, `{ram}`, `{vram}`, `{cpuname}`, and `{gpuname}`.
 - **Update notifications**: RigCord checks GitHub Releases and tells you when a new version is out.
 - **GPU temperature** on NVIDIA cards, plus optional CPU / GPU names.
-- **Clickable profile picture** and a "Get RigCord" button that link to this repo.
+- **Clickable profile picture** that links to this repo, plus an optional button of your own (shown in the app's preview).
 - **Settings window** with a live profile preview and usage rings.
 - **Light on resources**: about 6 MB RAM and about 0% CPU while it sits in the tray.
 - **One small .exe**: nothing to install, and portable mode lets you share a ready-made folder.

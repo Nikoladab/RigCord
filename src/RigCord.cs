@@ -27,7 +27,7 @@ using Microsoft.Win32;
 static class Program
 {
     public const string Name = "RigCord";
-    public const string Version = "3.1";
+    public const string Version = "3.2";
     // Project page. Used for the clickable profile picture, the "Get RigCord" button and the footer link.
     public const string GitHubUrl = "https://github.com/Nikoladab/RigCord";
     public const string LatestReleaseApi = "https://api.github.com/repos/Nikoladab/RigCord/releases/latest";
@@ -1402,6 +1402,38 @@ class PreviewCard : DBControl
     public string AppName = Program.Name, Details = "", State = "", Elapsed = "";
     public Image Picture, SmallIcon;
     public bool Paused, Offline;
+    // Button area under the activity (main window only): the user's own button as others see it,
+    // or a dashed "+ Add your own button" placeholder. Clicking it raises ButtonAreaClick.
+    public bool ShowButtonArea;
+    public string ButtonLabel = "";
+    public event EventHandler ButtonAreaClick;
+    bool hoverBtn;
+    float lastK = 1f;
+
+    Rectangle ButtonRect()
+    {
+        float k = lastK;
+        return new Rectangle((int)(16 * k), (int)(126 * k), (int)(Width - 32 * k), (int)(34 * k));
+    }
+
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
+        base.OnMouseMove(e);
+        bool h = ShowButtonArea && ButtonRect().Contains(e.Location);
+        if (h != hoverBtn) { hoverBtn = h; Cursor = h ? Cursors.Hand : Cursors.Default; Invalidate(); }
+    }
+
+    protected override void OnMouseLeave(EventArgs e)
+    {
+        base.OnMouseLeave(e);
+        if (hoverBtn) { hoverBtn = false; Cursor = Cursors.Default; Invalidate(); }
+    }
+
+    protected override void OnMouseClick(MouseEventArgs e)
+    {
+        base.OnMouseClick(e);
+        if (ShowButtonArea && ButtonRect().Contains(e.Location) && ButtonAreaClick != null) ButtonAreaClick(this, EventArgs.Empty);
+    }
 
     protected override void OnPaint(PaintEventArgs e)
     {
@@ -1409,7 +1441,32 @@ class PreviewCard : DBControl
         Theme.Prep(g);
         g.Clear(ParentBg);
         float k = Theme.Scale(g);
+        lastK = k;
         Theme.FillCard(g, new RectangleF(0, 0, Width - 1, Height - 1), k, Theme.Card);
+
+        if (ShowButtonArea)
+        {
+            Rectangle br = ButtonRect();
+            using (GraphicsPath bp = Theme.Round(br, 6 * k))
+            {
+                if (ButtonLabel.Length > 0 && !Paused)
+                {
+                    // looks like Discord's activity button
+                    using (SolidBrush bb = new SolidBrush(hoverBtn ? Color.FromArgb(58, 60, 68) : Color.FromArgb(46, 48, 55))) g.FillPath(bb, bp);
+                    using (Pen bpen = new Pen(Color.FromArgb(70, 72, 80), 1)) g.DrawPath(bpen, bp);
+                    using (Font fb = new Font("Segoe UI Semibold", 9f))
+                        TextRenderer.DrawText(g, ButtonLabel, fb, br, Theme.Text,
+                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+                }
+                else if (!Paused)
+                {
+                    using (Pen dp = new Pen(hoverBtn ? Theme.Link : Theme.Dim, 1)) { dp.DashStyle = DashStyle.Dash; g.DrawPath(dp, bp); }
+                    using (Font fb = new Font("Segoe UI", 8.5f))
+                        TextRenderer.DrawText(g, "+ Add your own button (YouTube, Twitch...)", fb, br, hoverBtn ? Theme.Link : Theme.Dim,
+                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+                }
+            }
+        }
 
         using (Font fHead = new Font("Segoe UI Semibold", 8.5f))
             TextRenderer.DrawText(g, Paused ? "Paused" : "Playing", fHead, new Point((int)(16 * k), (int)(12 * k)), Theme.Muted);
@@ -1609,7 +1666,7 @@ class MainForm : Form
 {
     [DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int value, int size);
 
-    const int W = 860, H = 628;
+    const int W = 860, H = 672;
     readonly TrayApp app;
     readonly Settings settings;
     Header header;
@@ -1649,12 +1706,14 @@ class MainForm : Form
         int lx = 20, lw = 420;
         AddSection("PROFILE PREVIEW", lx, 100);
         preview = new PreviewCard();
-        preview.SetBounds(lx, 120, lw, 128);
+        preview.SetBounds(lx, 120, lw, 174);
+        preview.ShowButtonArea = true;
+        preview.ButtonAreaClick += delegate { using (AdvancedForm f = new AdvancedForm(app, settings)) f.ShowDialog(this); RefreshView(); };
         Controls.Add(preview);
 
-        AddSection("LIVE USAGE", lx, 264);
+        AddSection("LIVE USAGE", lx, 308);
         CardPanel live = new CardPanel();
-        live.SetBounds(lx, 284, lw, 150);
+        live.SetBounds(lx, 328, lw, 150);
         Controls.Add(live);
         int gw = (lw - 16) / 4;
         gCpu = MakeGauge(live, "CPU", 8, gw, Color.FromArgb(129, 140, 248), Color.FromArgb(99, 102, 241));
@@ -1662,13 +1721,13 @@ class MainForm : Form
         gRam = MakeGauge(live, "RAM", 8 + gw * 2, gw, Color.FromArgb(167, 139, 250), Color.FromArgb(129, 140, 248));
         gVram = MakeGauge(live, "VRAM", 8 + gw * 3, gw, Color.FromArgb(45, 212, 191), Color.FromArgb(34, 211, 238));
 
-        AddSection("NOW PLAYING", lx, 450);
+        AddSection("NOW PLAYING", lx, 494);
         nowPlaying = new NowPlayingCard();
-        nowPlaying.SetBounds(lx, 470, lw, 64);
+        nowPlaying.SetBounds(lx, 514, lw, 64);
         Controls.Add(nowPlaying);
 
         hint = MakeLabel("Closing this window keeps RigCord running in the tray.", 8.5f, FontStyle.Regular, Theme.Dim);
-        hint.Location = new Point(lx + 2, 556);
+        hint.Location = new Point(lx + 2, 600);
         Controls.Add(hint);
         updateLink = new LinkLabel();
         updateLink.AutoSize = true;
@@ -1676,14 +1735,14 @@ class MainForm : Form
         updateLink.LinkColor = Theme.Green;
         updateLink.ActiveLinkColor = Theme.Text;
         updateLink.LinkBehavior = LinkBehavior.HoverUnderline;
-        updateLink.Location = new Point(lx, 554);
+        updateLink.Location = new Point(lx, 598);
         updateLink.Visible = false;
         updateLink.LinkClicked += delegate { app.OpenUpdate(); };
         Controls.Add(updateLink);
         int fx = lx;
-        fx = AddFooterLink("Advanced settings", fx, 580, Theme.Link, delegate { using (AdvancedForm f = new AdvancedForm(app, settings)) f.ShowDialog(this); });
-        if (settings.Link.Length > 0) fx = AddFooterLink("GitHub", fx, 580, Theme.Link, delegate { Open(settings.Link); });
-        AddFooterLink("Quit RigCord", fx, 580, Theme.Red, delegate { app.Exit(); });
+        fx = AddFooterLink("Advanced settings", fx, 624, Theme.Link, delegate { using (AdvancedForm f = new AdvancedForm(app, settings)) f.ShowDialog(this); RefreshView(); });
+        if (settings.Link.Length > 0) fx = AddFooterLink("GitHub", fx, 624, Theme.Link, delegate { Open(settings.Link); });
+        AddFooterLink("Quit RigCord", fx, 624, Theme.Red, delegate { app.Exit(); });
 
         // ---------- right column
         int rx = 460, rw = 380;
@@ -1852,6 +1911,7 @@ class MainForm : Form
 
         preview.AppName = settings.AppName.Length > 0 ? settings.AppName : Program.Name;
         preview.Picture = null; // always the RigCord logo
+        preview.ButtonLabel = settings.ButtonLabel.Length > 0 && settings.ButtonUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? settings.ButtonLabel : "";
         preview.Paused = settings.Paused;
         preview.Offline = !app.IsConnected;
         if (settings.ShowElapsed)
@@ -2213,7 +2273,7 @@ class AdvancedForm : Form
 
         // ---- links
         Section("YOUR BUTTON", 268);
-        Label lk = MainForm.MakeLabel("Add one button of your own (e.g. your YouTube or Twitch) next to \"Get RigCord\".", 9f, FontStyle.Regular, Theme.Muted);
+        Label lk = MainForm.MakeLabel("Add a button of your own under your activity (e.g. your YouTube or Twitch).", 9f, FontStyle.Regular, Theme.Muted);
         lk.Location = new Point(22, 296);
         Controls.Add(lk);
         btnLabel = Input(settings.ButtonLabel, "Extra button text", 20, 328, 170);
@@ -2625,8 +2685,6 @@ class TrayApp : ApplicationContext
         List<string> buttons = new List<string>();
         if (settings.ButtonLabel.Length > 0 && settings.ButtonUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             buttons.Add("{\"label\":" + Json.Str(Trunc(settings.ButtonLabel, 32)) + ",\"url\":" + Json.Str(settings.ButtonUrl) + "}");
-        if (link.Length > 0)
-            buttons.Add("{\"label\":\"Get RigCord\",\"url\":" + Json.Str(link) + "}");
         if (buttons.Count > 0) a.Append(",\"buttons\":[").Append(string.Join(",", buttons.ToArray())).Append("]");
 
         a.Append(",\"instance\":false}");
