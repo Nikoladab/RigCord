@@ -22,6 +22,10 @@
   </a>
 </p>
 
+<p align="center">
+  <img src="assets/screenshot.png" width="760" alt="RigCord app window">
+</p>
+
 ---
 
 ## Overview
