@@ -27,7 +27,7 @@ using Microsoft.Win32;
 static class Program
 {
     public const string Name = "RigCord";
-    public const string Version = "3.2";
+    public const string Version = "3.3";
     // Project page. Used for the clickable profile picture, the "Get RigCord" button and the footer link.
     public const string GitHubUrl = "https://github.com/Nikoladab/RigCord";
     public const string LatestReleaseApi = "https://api.github.com/repos/Nikoladab/RigCord/releases/latest";
@@ -1708,7 +1708,7 @@ class MainForm : Form
         preview = new PreviewCard();
         preview.SetBounds(lx, 120, lw, 174);
         preview.ShowButtonArea = true;
-        preview.ButtonAreaClick += delegate { using (AdvancedForm f = new AdvancedForm(app, settings)) f.ShowDialog(this); RefreshView(); };
+        preview.ButtonAreaClick += delegate { using (AdvancedForm f = new AdvancedForm(app, settings)) { f.FocusButtonField = true; f.ShowDialog(this); } RefreshView(); };
         Controls.Add(preview);
 
         AddSection("LIVE USAGE", lx, 308);
@@ -2231,6 +2231,19 @@ class AdvancedForm : Form
     readonly Settings settings;
     readonly InputBox interval, cpuName, gpuName, btnLabel, btnUrl, ignore;
     readonly Label error;
+    // true when opened from the preview's button area: start in the button text field
+    public bool FocusButtonField;
+
+    protected override void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        if (FocusButtonField)
+        {
+            btnLabel.Box.Focus();
+            btnLabel.Box.SelectionStart = btnLabel.Box.Text.Length;
+            btnLabel.Box.SelectionLength = 0;
+        }
+    }
 
     public AdvancedForm(TrayApp app, Settings settings)
     {
@@ -2278,8 +2291,8 @@ class AdvancedForm : Form
         Controls.Add(lk);
         btnLabel = Input(settings.ButtonLabel, "Extra button text", 20, 328, 170);
         btnUrl = Input(settings.ButtonUrl, "Extra button link   https://...", 198, 328, W - 20 - 198);
-        Label bh = MainForm.MakeLabel("Buttons are visible to everyone except you (Discord's rule).", 8f, FontStyle.Regular, Theme.Dim);
-        bh.Location = new Point(23, 366);
+        Label bh = MainForm.MakeLabel("⚠  You won't see your own button, but everyone else will (Discord's rule).", 9f, FontStyle.Bold, Theme.Yellow);
+        bh.Location = new Point(22, 368);
         Controls.Add(bh);
 
         // ---- game detection
@@ -2669,7 +2682,7 @@ class TrayApp : ApplicationContext
             List<string> parts = new List<string>();
             if (image.Length > 0)
             {
-                string hover = link.Length > 0 ? "RigCord \u2022 click to get it" : "RigCord";
+                string hover = link.Length > 0 ? "RigCord \u2022 get it here" : "RigCord";
                 parts.Add("\"large_image\":" + Json.Str(image));
                 parts.Add("\"large_text\":" + Json.Str(hover));
                 if (link.Length > 0) parts.Add("\"large_url\":" + Json.Str(link)); // clickable picture (newer Discord)
