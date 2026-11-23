@@ -27,7 +27,7 @@ using Microsoft.Win32;
 static class Program
 {
     public const string Name = "RigCord";
-    public const string Version = "3.5";
+    public const string Version = "3.6";
     // Project page. Used for the clickable profile picture, the "Get RigCord" button and the footer link.
     public const string GitHubUrl = "https://github.com/Nikoladab/RigCord";
     public const string LatestReleaseApi = "https://api.github.com/repos/Nikoladab/RigCord/releases/latest";
@@ -63,7 +63,8 @@ class Settings
     public bool ShowNames = false;
     public bool ShowVram = true;
     public bool ShowTemp = true;
-    public bool ShowElapsed = true;
+    // false = timer counts how long you play the current game; true = how long RigCord has been running
+    public bool AppTimer = false;
     public bool Paused = false;
     public int Interval = 5;
     public string CpuName = "";
@@ -118,7 +119,7 @@ class Settings
                     case "shownames": s.ShowNames = B(v); break;
                     case "showvram": s.ShowVram = B(v); break;
                     case "showtemp": s.ShowTemp = B(v); break;
-                    case "showelapsed": s.ShowElapsed = B(v); break;
+                    case "rigcordtimer": s.AppTimer = B(v); break;
                     case "paused": s.Paused = B(v); break;
                     case "interval": if (int.TryParse(v, out i)) s.Interval = Math.Max(4, Math.Min(60, i)); break;
                     case "cpuname": s.CpuName = v; break;
@@ -159,7 +160,7 @@ class Settings
             sb.AppendLine("ShowNames=" + (ShowNames ? "1" : "0"));
             sb.AppendLine("ShowVram=" + (ShowVram ? "1" : "0"));
             sb.AppendLine("ShowTemp=" + (ShowTemp ? "1" : "0"));
-            sb.AppendLine("ShowElapsed=" + (ShowElapsed ? "1" : "0"));
+            sb.AppendLine("RigCordTimer=" + (AppTimer ? "1" : "0"));
             sb.AppendLine("Paused=" + (Paused ? "1" : "0"));
             sb.AppendLine();
             sb.AppendLine("# Seconds between Discord updates (4-60)");
@@ -1767,7 +1768,7 @@ class MainForm : Form
         tgNames = AddRow(disp, 48, "Show CPU & GPU names", "e.g. Ryzen 5 2600X 22%", settings.ShowNames);
         tgVram = AddRow(disp, 96, "Show VRAM usage", "Video memory next to RAM", settings.ShowVram);
         tgTemp = AddRow(disp, 144, "Show GPU temperature", "NVIDIA cards only", settings.ShowTemp);
-        tgElapsed = AddRow(disp, 192, "Show elapsed time", "Timer on your profile", settings.ShowElapsed);
+        tgElapsed = AddRow(disp, 192, "Show RigCord time", "Off: time in your game. On: time RigCord runs", settings.AppTimer);
 
         AddSection("GENERAL", rx, 376);
         CardPanel gen = new CardPanel();
@@ -1829,7 +1830,7 @@ class MainForm : Form
         tgNames.CheckedChanged += delegate { settings.ShowNames = tgNames.Checked; app.SettingsChanged(); };
         tgVram.CheckedChanged += delegate { settings.ShowVram = tgVram.Checked; app.SettingsChanged(); };
         tgTemp.CheckedChanged += delegate { settings.ShowTemp = tgTemp.Checked; app.SettingsChanged(); };
-        tgElapsed.CheckedChanged += delegate { settings.ShowElapsed = tgElapsed.Checked; app.SettingsChanged(); };
+        tgElapsed.CheckedChanged += delegate { settings.AppTimer = tgElapsed.Checked; app.SettingsChanged(); };
         tgPause.CheckedChanged += delegate { settings.Paused = tgPause.Checked; app.SettingsChanged(); };
         tgStartup.CheckedChanged += delegate { TrayApp.SetStartup(tgStartup.Checked); app.SettingsChanged(); };
 
@@ -1938,13 +1939,11 @@ class MainForm : Form
         preview.ButtonLabel = settings.ButtonLabel.Length > 0 && settings.ButtonUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? settings.ButtonLabel : "";
         preview.Paused = settings.Paused;
         preview.Offline = !app.IsConnected;
-        if (settings.ShowElapsed)
         {
             TimeSpan t = DateTime.UtcNow - app.TimerStartUtc;
             if (t.Ticks < 0) t = TimeSpan.Zero;
             preview.Elapsed = (t.TotalHours >= 1 ? ((int)t.TotalHours) + ":" : "") + t.Minutes.ToString("00") + ":" + t.Seconds.ToString("00");
         }
-        else preview.Elapsed = "";
         preview.Invalidate();
 
         bool upd = app.UpdateVersion.Length > 0;
@@ -2237,7 +2236,7 @@ class TextEditorForm : Form
         preview.AppName = settings.AppName.Length > 0 ? settings.AppName : Program.Name;
         preview.Picture = null; // RigCord logo
         preview.SmallIcon = gameMode && s.Game != null ? s.Game.Icon : null;
-        preview.Elapsed = settings.ShowElapsed ? "12:34" : "";
+        preview.Elapsed = settings.AppTimer ? "1:02:15" : (gameMode ? "12:34" : "1:02:15");
         previewLabel.Text = gameMode ? "PREVIEW  -  IN A GAME" : "PREVIEW  -  NOT IN A GAME";
         preview.Invalidate();
     }
@@ -2479,7 +2478,7 @@ class TrayApp : ApplicationContext
         get
         {
             Snapshot s = Latest;
-            return (s != null && s.Game != null && settings.ShowGame) ? s.Game.StartUtc : StartTime;
+            return (!settings.AppTimer && s != null && s.Game != null && settings.ShowGame) ? s.Game.StartUtc : StartTime;
         }
     }
 
@@ -2697,9 +2696,9 @@ class TrayApp : ApplicationContext
         StringBuilder a = new StringBuilder("{");
         a.Append("\"details\":").Append(Json.Str(s.Details));
         a.Append(",\"state\":").Append(Json.Str(s.State));
-        if (settings.ShowElapsed)
+        // Discord always shows a timer for "Playing" (a frozen 0:00 without one), so a start time is always sent
         {
-            DateTime start = (settings.ShowGame && s.Game != null) ? s.Game.StartUtc : StartTime;
+            DateTime start = (!settings.AppTimer && settings.ShowGame && s.Game != null) ? s.Game.StartUtc : StartTime;
             a.Append(",\"timestamps\":{\"start\":").Append((long)(start - new DateTime(1970, 1, 1)).TotalSeconds).Append("}");
         }
 

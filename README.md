@@ -75,7 +75,7 @@ That's it. Enable **Start with Windows** in RigCord and it will run automaticall
 
 | Where | What you can change |
 |---|---|
-| **Display** | Show or hide the game, CPU/GPU names, VRAM, GPU temperature and the timer |
+| **Display** | Show or hide the game, CPU/GPU names, VRAM and GPU temperature, and choose whether the timer counts your game time or RigCord time |
 | **✎ Advanced** | Write your own status lines. These override the Display options. |
 | **Advanced settings** | Update interval, custom hardware names, your own profile button, and apps that should never count as a game |
 
